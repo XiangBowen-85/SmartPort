@@ -20,6 +20,6 @@
         app:tabGravity="fill"
         app:tabMode="fixed"
         android:padding="8dp"
-        app:tabTextColor="#1976D2"/>
+        app:tabTextColor="#388E3C"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
