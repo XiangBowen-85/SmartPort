@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "457724435218",
+    "project_id": "smartport-e1acc",
+    "storage_bucket": "smartport-e1acc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:457724435218:android:0a07c391a319fafe5471cb",
+        "android_client_info": {
+          "package_name": "com.example.smartport"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "457724435218-bnrej6n2uc9s4vtgr88icpong0te9839.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.smartport",
+            "certificate_hash": "bc1fb52cc2fa3b9b8d44fb8b8b12721c911234a2"
+          }
+        },
+        {
+          "client_id": "457724435218-dd44d3llhtfko6nn9gattf4v03ldirgc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPuEhspJFdKsuiEbXybWzaAL0JnjaL-W0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "457724435218-dd44d3llhtfko6nn9gattf4v03ldirgc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

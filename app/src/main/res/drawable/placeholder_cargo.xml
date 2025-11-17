@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- 集装箱主体 -->
+    <path
+        android:fillColor="#1E88E5"
+        android:strokeColor="#0D47A1"
+        android:strokeWidth="0.5"
+        android:pathData="M3,6 L21,6 L21,18 L3,18 Z" />
+
+    <!-- 门缝线 -->
+    <path
+        android:strokeColor="#0D47A1"
+        android:strokeWidth="0.5"
+        android:pathData="M12,6 L12,18" />
+
+    <!-- 角件指示 -->
+    <path
+        android:fillColor="#0D47A1"
+        android:pathData="M4,7 L5,7 L5,8 L4,8 Z" />
+    <path
+        android:fillColor="#0D47A1"
+        android:pathData="M19,7 L20,7 L20,8 L19,8 Z" />
+
+</vector>

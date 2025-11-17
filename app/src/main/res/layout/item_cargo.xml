@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <!-- 货物图片 -->
+        <ImageView
+            android:id="@+id/imgCargo"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/placeholder_cargo"
+            android:contentDescription="Imagen del cargamento" />
+
+        <!-- 货物信息 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <!-- 货物类型 -->
+            <TextView
+                android:id="@+id/tvTipo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tipo de Carga"
+                android:textColor="#333333"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <!-- 总重量 -->
+            <TextView
+                android:id="@+id/tvPeso"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Peso: 0 kg"
+                android:textColor="#666666"
+                android:textSize="14sp" />
+
+            <!-- 在现有的 LinearLayout 中添加日期 TextView -->
+            <TextView
+                android:id="@+id/tvFecha"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Fecha: 01/01/2024"
+                android:textColor="#666666"
+                android:textSize="12sp" />
+
+            <!-- 状态 -->
+            <TextView
+                android:id="@+id/tvEstado"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/status_background"
+                android:gravity="center"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="4dp"
+                android:text="Pendiente"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

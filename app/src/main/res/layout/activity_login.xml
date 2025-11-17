@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background">
+
+    <!-- 半透明遮罩层，用于降低背景清晰度 -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.9"
+        android:background="#CCFFFFFF" />
+
+    <!-- 内容区域 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- 你的应用logo -->
+
+        <!-- 欢迎文字 -->
+
+        <ImageView
+            android:layout_width="210dp"
+            android:layout_height="210dp"
+            android:layout_marginBottom="48dp"
+            android:src="@drawable/logo" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:text="Smart Port"
+            android:textColor="#333333"
+            android:textSize="32sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            android:text="Por favor inicia sesión para continuar"
+            android:textColor="#666666"
+            android:textSize="16sp" />
+
+        <!-- 登录按钮 -->
+        <Button
+            android:id="@+id/btn_login"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:backgroundTint="#3F51B5"
+            android:text="Iniciar Sesión"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp" />
+
+        <!-- 加载进度条 -->
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+</RelativeLayout>
