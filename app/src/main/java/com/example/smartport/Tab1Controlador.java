@@ -138,8 +138,6 @@ public class Tab1Controlador extends Fragment {
         TextInputEditText etPesoTotal = addCargoDialog.findViewById(R.id.etPesoTotal);
         TextInputEditText etDescripcion = addCargoDialog.findViewById(R.id.etDescripcion);
 
-
-
         TextView tvError = addCargoDialog.findViewById(R.id.tvError);
         Button btnCancel = addCargoDialog.findViewById(R.id.btnCancel);
         Button btnSave = addCargoDialog.findViewById(R.id.btnSave);
@@ -197,41 +195,73 @@ public class Tab1Controlador extends Fragment {
         TextView tvError = dialog.findViewById(R.id.tvError);
 
         btnSave.setEnabled(false);
-        btnSave.setText("Guardando...");
+        btnSave.setText("Generando ID...");
 
-        DocumentReference counterRef = db.collection("counters").document("cargoCounter");
+        // 第一步：找出当前最大的编号
+        db.collection("cargos")
+                .orderBy("id", Query.Direction.DESCENDING)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    int nextNumber = 1;
+
+                    if (!querySnapshot.isEmpty()) {
+                        String lastId = querySnapshot.getDocuments().get(0).getId();
+                        if (lastId != null && lastId.startsWith("cargo_")) {
+                            try {
+                                String numStr = lastId.substring("cargo_".length());
+                                int lastNum = Integer.parseInt(numStr);
+                                nextNumber = lastNum + 1;
+                            } catch (Exception ignored) {}
+                        }
+                    }
+
+                    // 第二步：用事务尝试写入，从 nextNumber 开始，一直试到成功为止
+                    tryCreateCargoWithNumber(cargo, nextNumber, dialog);
+
+                })
+                .addOnFailureListener(e -> {
+                    tvError.setText("Error de red");
+                    tvError.setVisibility(View.VISIBLE);
+                    btnSave.setEnabled(true);
+                    btnSave.setText("Guardar");
+                });
+    }
+
+    // 新增这个递归方法，自动解决冲突
+    private void tryCreateCargoWithNumber(Cargo cargo, int number, Dialog dialog) {
+        String candidateId = String.format("cargo_%03d", number);
 
         db.runTransaction(transaction -> {
-            DocumentSnapshot snapshot = transaction.get(counterRef);
+            DocumentReference ref = db.collection("cargos").document(candidateId);
+            DocumentSnapshot snapshot = transaction.get(ref);
 
-            long lastNumber;
-            if (!snapshot.exists() || snapshot.getLong("lastNumber") == null) {
-                // 第一次使用，假设从 0 或你现有的最大值开始
-                lastNumber = 20; // 你目前看到 cargo_020，可以从 20 开始
-            } else {
-                lastNumber = snapshot.getLong("lastNumber");
+            if (snapshot.exists()) {
+                // 这个 ID 已经被别人抢走了，直接返回 null 表示失败
+                return null;
             }
 
-            long nextNumber = lastNumber + 1;
-            String nextId = String.format("cargo_%03d", nextNumber);  // cargo_021, cargo_022...
+            // 成功！写入数据
+            cargo.setId(candidateId);
+            transaction.set(ref, cargo);
+            return candidateId;
 
-            // 更新计数器
-            transaction.set(counterRef, Map.of("lastNumber", nextNumber));
-
-            // 设置 cargo 的 ID 并写入 cargos 集合
-            cargo.setId(nextId);
-            DocumentReference newCargoRef = db.collection("cargos").document(nextId);
-            transaction.set(newCargoRef, cargo);
-
-            return nextId;
         }).addOnSuccessListener(result -> {
-            Log.d(TAG, "Cargo creado con ID: " + result);
-            dialog.dismiss();
-            Toast.makeText(getContext(), "Cargamento creado: " + result, Toast.LENGTH_SHORT).show();
+            if (result != null) {
+                // 成功创建
+                Log.d(TAG, "Cargamento creado → " + result);
+                dialog.dismiss();
+                Toast.makeText(getContext(), "Creado: " + result, Toast.LENGTH_SHORT).show();
+            } else {
+                // 被抢了，自动 +1 再试一次（递归）
+                tryCreateCargoWithNumber(cargo, number + 1, dialog);
+            }
         }).addOnFailureListener(e -> {
-            Log.e(TAG, "Error creando cargo", e);
-            tvError.setText("Error: " + e.getMessage());
+            // 网络错误等真正失败
+            TextView tvError = dialog.findViewById(R.id.tvError);
+            tvError.setText("Error de red");
             tvError.setVisibility(View.VISIBLE);
+            Button btnSave = dialog.findViewById(R.id.btnSave);
             btnSave.setEnabled(true);
             btnSave.setText("Guardar");
         });
