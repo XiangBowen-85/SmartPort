@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 禁用状态 = 绿色（已发送） -->
+    <item android:state_enabled="false">
+        <shape android:shape="oval">
+            <solid android:color="#43A047" />
+            <stroke android:width="8dp" android:color="#2E7D32" />
+        </shape>
+    </item>
+
+    <!-- 正常状态 = 红色 -->
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#D32F2F" />
+            <stroke android:width="8dp" android:color="#B71C1C" />
+        </shape>
+    </item>
+</selector>

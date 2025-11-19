@@ -1,16 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
     android:background="#F5F5F5">
 
+    <!-- 欢迎横幅 -->
     <TextView
+        android:id="@+id/welcomeBanner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:background="@drawable/welcome_banner_background2"
+        android:gravity="center"
+        android:padding="24dp"
+        android:text="Hola, Controlador!"
+        android:textColor="#FFFFFF"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- 子标题 -->
+    <TextView
+        android:id="@+id/subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Página de Capitán - En desarrollo"
+        android:layout_marginTop="24dp"
+        android:text="Presione el botón para abrir la puerta"
+        android:textColor="#555555"
         android:textSize="18sp"
-        android:textColor="#666666" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/welcomeBanner" />
 
-</LinearLayout>
+    <!-- 开门按钮 -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnOpenGate"
+        android:layout_width="260dp"
+        android:layout_height="260dp"
+        android:layout_marginTop="60dp"
+        android:background="@drawable/button_open_gate_selector"
+        android:elevation="12dp"
+        android:insetLeft="0dp"
+
+        android:insetTop="0dp"
+        android:insetRight="0dp"
+        android:insetBottom="0dp"
+
+        android:text="ABRIR\nCOMPUERTA"
+        android:textColor="#FFFFFF"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        app:backgroundTint="@null"
+        app:cornerRadius="130dp"
+        app:elevation="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/subtitle"
+        app:rippleColor="#80FFFFFF"
+        app:strokeWidth="0dp" />
+    <!--app:stateListAnimator="@animator/button_elevation_anim"-->
+
+    <!-- 状态提示文字 -->
+    <TextView
+        android:id="@+id/tvStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text=""
+        android:textColor="#43A047"
+        android:textSize="16sp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnOpenGate" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
