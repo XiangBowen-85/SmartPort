@@ -10,7 +10,7 @@ android {
     defaultConfig {
         applicationId = "com.example.smartport"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 30
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -80,6 +80,10 @@ dependencies {
     // Gson
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("com.google.android.gms:play-services-auth:21.2.0")
+
+    //mqtt
+    implementation("org.eclipse.paho:org.eclipse.paho.android.service:1.1.1")
+    implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.1")
 
     // AndroidX 核心库
     implementation(libs.appcompat)
