@@ -3,13 +3,13 @@
     <item android:state_pressed="true">
         <objectAnimator
             android:propertyName="translationZ"
-            android:valueTo="4dp"
+            android:valueTo="96dp"
             android:duration="100" />
     </item>
     <item>
         <objectAnimator
             android:propertyName="translationZ"
-            android:valueTo="12dp"
+            android:valueFrom="0dp"
             android:duration="100" />
     </item>
 </selector>

@@ -61,6 +61,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/subtitle"
         app:rippleColor="#80FFFFFF"
+        android:stateListAnimator="@animator/button_elevation_anim"
         app:strokeWidth="0dp" />
     <!--app:stateListAnimator="@animator/button_elevation_anim"-->
 
