@@ -132,9 +132,9 @@
                 android:id="@+id/Capitan"
                 android:layout_width="match_parent"
                 android:layout_height="68dp"
-                android:backgroundTint="#FFEBEE"
+                android:backgroundTint="#FFEBFF"
                 android:text="Soy Capitán"
-                android:textColor="#D32F2F"
+                android:textColor="#BD2FD3"
                 android:textSize="18sp" />
 
         </LinearLayout>
