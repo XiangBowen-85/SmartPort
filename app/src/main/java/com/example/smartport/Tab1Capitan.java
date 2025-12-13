@@ -91,7 +91,7 @@ public class Tab1Capitan extends Fragment {
             return;
         }
 
-        String payload = "OPEN_NOW";   // Arduino 收到这串字符就开门
+        String payload = "OPEN";   // Arduino 收到这串字符就开门
         MqttMessage message = new MqttMessage(payload.getBytes());
         message.setQos(1);
 
