@@ -1,83 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="2dp">
+    android:layout_margin="8dp">
 
-    <LinearLayout
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp">
+        app:cardCornerRadius="8dp"
+        app:cardElevation="2dp">
 
-        <!-- 货物图片 -->
-        <ImageView
-            android:id="@+id/imgCargo"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/placeholder_cargo"
-            android:contentDescription="Imagen del cargamento" />
-
-        <!-- 货物信息 -->
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="horizontal"
+            android:padding="16dp">
 
-            <!-- 货物类型 -->
-            <TextView
-                android:id="@+id/tvTipo"
-                android:layout_width="match_parent"
+            <!-- 货物图片 -->
+            <ImageView
+                android:id="@+id/imgCargo"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:contentDescription="Imagen del cargamento"
+                android:scaleType="centerCrop"
+                android:src="@drawable/placeholder_cargo" />
+
+            <!-- 货物信息 -->
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Tipo de Carga"
-                android:textColor="#333333"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:layout_marginStart="16dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-            <!-- 总重量 -->
-            <TextView
-                android:id="@+id/tvPeso"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Peso: 0 kg"
-                android:textColor="#666666"
-                android:textSize="14sp" />
+                <TextView
+                    android:id="@+id/tvTipo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Tipo de Carga"
+                    android:textColor="#333333"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
 
-            <!-- 在现有的 LinearLayout 中添加日期 TextView -->
-            <TextView
-                android:id="@+id/tvFecha"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Fecha: 01/01/2024"
-                android:textColor="#666666"
-                android:textSize="12sp" />
+                <TextView
+                    android:id="@+id/tvPeso"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Peso: 0 kg"
+                    android:textColor="#666666"
+                    android:textSize="14sp" />
 
-            <!-- 状态 -->
-            <TextView
-                android:id="@+id/tvEstado"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/status_background"
-                android:gravity="center"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="4dp"
-                android:text="Pendiente"
-                android:textColor="#FFFFFF"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/tvFecha"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Fecha: 01/01/2024"
+                    android:textColor="#666666"
+                    android:textSize="12sp" />
 
+                <TextView
+                    android:id="@+id/tvEstado"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/status_background"
+                    android:gravity="center"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="4dp"
+                    android:text="Pendiente"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
 
         </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
-    </LinearLayout>
+    <TextView
+        android:id="@+id/tvSecurity"
+        android:layout_width="220dp"
+        android:layout_height="28dp"
+        android:layout_gravity="top|end"
+        android:background="#616161"
+        android:elevation="8dp"
+        android:gravity="center"
+        android:rotation="15"
+        android:text="Sin revisar"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:translationX="32dp"
+        android:translationY="1dp"
+        android:visibility="visible" />
 
-</androidx.cardview.widget.CardView>
+
+</FrameLayout>

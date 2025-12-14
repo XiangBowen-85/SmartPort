@@ -181,6 +181,10 @@ public class Tab1Controlador extends Fragment {
             newCargo.setEnviado(false); // 默认 pendiente
             newCargo.setDescripcion(descripcion.isEmpty() ? "" : descripcion);
             newCargo.setFechaCreacion(Timestamp.now()); // 当前时间
+            newCargo.setSecurityChecked(false);
+            newCargo.setVisibleToTransportista(false);
+            newCargo.setSecurityStatus("PENDING");
+
 
             // 保存到 Firestore
             // 关键：生成自增 ID 并保存

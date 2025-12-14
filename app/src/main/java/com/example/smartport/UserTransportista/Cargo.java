@@ -15,6 +15,11 @@ public class Cargo {
     private boolean enviado;
     private String descripcion;
     private Timestamp fechaCreacion;
+    private boolean securityChecked;
+    private boolean visibleToTransportista;
+    private double pesoReal;
+    private double diferenciaPeso;
+    private String securityStatus; // PENDING / APPROVED / REJECTED / null(legacy)
 
     public Cargo() {
         // 默认值
@@ -92,4 +97,49 @@ public class Cargo {
     public Timestamp getFechaCreacion() { return fechaCreacion; }
     @PropertyName("fechaCreacion")
     public void setFechaCreacion(Timestamp fechaCreacion) { this.fechaCreacion = fechaCreacion; }
+
+    public Boolean getSecurityChecked() {
+        return securityChecked;
+    }
+
+    public void setSecurityChecked(Boolean securityChecked) {
+        this.securityChecked = securityChecked;
+    }
+
+    public Boolean getVisibleToTransportista() {
+        return visibleToTransportista;
+    }
+
+    public void setVisibleToTransportista(Boolean visibleToTransportista) {
+        this.visibleToTransportista = visibleToTransportista;
+    }
+
+    public Double getPesoReal() {
+        return pesoReal;
+    }
+
+    public void setPesoReal(Double pesoReal) {
+        this.pesoReal = pesoReal;
+    }
+
+    public Double getDiferenciaPeso() {
+        return diferenciaPeso;
+    }
+
+    public void setDiferenciaPeso(Double diferenciaPeso) {
+        this.diferenciaPeso = diferenciaPeso;
+    }
+
+    @PropertyName("securityStatus")
+    public String getSecurityStatus() { return securityStatus; }
+
+    @PropertyName("securityStatus")
+    public void setSecurityStatus(Object statusObj) {
+        if (statusObj == null) {
+            this.securityStatus = null; // legacy
+            return;
+        }
+        this.securityStatus = String.valueOf(statusObj);
+    }
+
 }

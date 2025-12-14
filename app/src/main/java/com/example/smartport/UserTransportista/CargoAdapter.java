@@ -70,6 +70,15 @@ public class CargoAdapter extends RecyclerView.Adapter<CargoAdapter.CargoViewHol
             holder.tvEstado.setBackgroundColor(context.getResources().getColor(R.color.orange));
         }
 
+        // ===== 安全审核状态 =====
+        if ("PENDING".equalsIgnoreCase(cargo.getSecurityStatus())) {
+            holder.tvSecurity.setVisibility(View.VISIBLE);
+            holder.tvSecurity.setText("Sin revisar");
+        } else {
+            holder.tvSecurity.setVisibility(View.GONE);
+        }
+
+
         // 设置日期
         if (cargo.getFechaCreacion() != null) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
@@ -185,6 +194,8 @@ public class CargoAdapter extends RecyclerView.Adapter<CargoAdapter.CargoViewHol
     static class CargoViewHolder extends RecyclerView.ViewHolder {
         ImageView imgCargo;
         TextView tvTipo, tvPeso, tvEstado,tvFecha;
+        TextView tvSecurity;
+
 
         public CargoViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -193,6 +204,8 @@ public class CargoAdapter extends RecyclerView.Adapter<CargoAdapter.CargoViewHol
             tvPeso = itemView.findViewById(R.id.tvPeso);
             tvEstado = itemView.findViewById(R.id.tvEstado);
             tvFecha = itemView.findViewById(R.id.tvFecha); // 初始化 tvFecha
+            tvSecurity = itemView.findViewById(R.id.tvSecurity);
+
         }
     }
 }

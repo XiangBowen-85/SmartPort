@@ -180,6 +180,7 @@ public class Tab1Transportista extends Fragment {
 
         // 实时监听cargos集合的变化，按创建时间降序排列
         cargoListener = db.collection("cargos")
+                .whereEqualTo("visibleToTransportista", true)
                 .orderBy("fechaCreacion", Query.Direction.DESCENDING)
                 .addSnapshotListener((value, error) -> {
                     showLoading(false);
