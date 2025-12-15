@@ -298,6 +298,9 @@ public class Tab1EncargadoSeguridad extends Fragment {
         update.put("securityChecked", true);
         update.put("visibleToTransportista", add);
 
+        // ✅ 关键：同步更新 securityStatus
+        update.put("securityStatus", add ? "APPROVED" : "REJECTED");
+
         db.collection(COLLECTION_CARGOS)
                 .document(cargoId)
                 .update(update)
