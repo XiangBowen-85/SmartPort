@@ -404,50 +404,47 @@ public class Tab1Controlador extends Fragment {
         cargoListener = db.collection("cargos")
                 .orderBy("fechaCreacion", Query.Direction.DESCENDING)
                 .addSnapshotListener((value, error) -> {
-                    showLoading(false);
 
+                    // 1) 先记录错误，但不要立刻 return
                     if (error != null) {
                         Log.e(TAG, "Error loading cargos: " + error.getMessage());
+                    }
+
+                    // 2) 如果 value 为空（真的拿不到任何快照），才显示 Error
+                    if (value == null) {
+                        showLoading(false);
                         tvEmpty.setText("Error al cargar cargamentos");
                         tvEmpty.setVisibility(View.VISIBLE);
+                        recyclerViewCargos.setVisibility(View.GONE);
                         return;
                     }
 
-                    if (value != null && !value.isEmpty()) {
-                        allCargosList.clear();
-                        for (QueryDocumentSnapshot doc : value) {
-                            try {
-                                Cargo cargo = doc.toObject(Cargo.class);
-                                cargo.setId(doc.getId()); // 设置文档ID
-                                allCargosList.add(cargo);
-
-                                Log.d(TAG, "Loaded cargo: " + cargo.getTipo() +
-                                        " Date: " + (cargo.getFechaCreacion() != null ?
-                                        cargo.getFechaCreacion().toDate() : "null"));
-                            } catch (Exception e) {
-                                Log.e(TAG, "Error parsing cargo document: " + doc.getId(), e);
-                            }
+                    // 3) 有快照就正常渲染（哪怕 error != null）
+                    allCargosList.clear();
+                    for (QueryDocumentSnapshot doc : value) {
+                        try {
+                            Cargo cargo = doc.toObject(Cargo.class);
+                            cargo.setId(doc.getId());
+                            allCargosList.add(cargo);
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error parsing cargo document: " + doc.getId(), e);
                         }
-
-                        // Apply current filter or show all
-                        if (btnClearFilter.getVisibility() == View.VISIBLE) {
-                            applyDateFilter(); // Re-apply filter with new data
-                        } else {
-                            cargoList.clear();
-                            cargoList.addAll(allCargosList);
-                            cargoAdapter.notifyDataSetChanged();
-                            updateEmptyState();
-                        }
-
-                        Log.d(TAG, "Total cargos loaded: " + allCargosList.size());
-
-                    } else {
-                        allCargosList.clear();
-                        cargoList.clear();
-                        cargoAdapter.notifyDataSetChanged();
-                        tvEmpty.setVisibility(View.VISIBLE);
-                        Log.d(TAG, "No cargos found in Firestore");
                     }
+
+                    // 4) 刷新列表
+                    if (btnClearFilter.getVisibility() == View.VISIBLE) {
+                        applyDateFilter();
+                    } else {
+                        cargoList.clear();
+                        cargoList.addAll(allCargosList);
+                        cargoAdapter.notifyDataSetChanged();
+                    }
+
+                    // 5) 最后再 showLoading(false)，它会调用 updateEmptyState
+                    showLoading(false);
+
+                    // 可选：如果有 error，但你仍然显示了数据，可以用 Toast 提示而不盖住 UI
+                    // if (error != null) Toast.makeText(getContext(), "Aviso: " + error.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 
