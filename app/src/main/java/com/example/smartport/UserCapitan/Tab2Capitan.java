@@ -1,4 +1,4 @@
-package com.example.smartport;
+package com.example.smartport.UserCapitan;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -32,6 +32,8 @@ import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.example.smartport.R;
+import com.example.smartport.SelectionActivity;
+import com.example.smartport.UserProfile;
 import com.example.smartport.utils.SessionManager;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.DocumentReference;

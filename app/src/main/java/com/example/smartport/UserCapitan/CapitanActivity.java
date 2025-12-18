@@ -1,4 +1,4 @@
-package com.example.smartport;
+package com.example.smartport.UserCapitan;
 
 import android.os.Bundle;
 import android.widget.Toast;

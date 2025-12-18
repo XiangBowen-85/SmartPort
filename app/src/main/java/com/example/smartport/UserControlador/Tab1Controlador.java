@@ -1,4 +1,4 @@
-package com.example.smartport;
+package com.example.smartport.UserControlador;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
@@ -39,7 +39,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 public class Tab1Controlador extends Fragment {
 

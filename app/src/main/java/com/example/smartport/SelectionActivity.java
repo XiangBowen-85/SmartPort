@@ -14,6 +14,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.example.smartport.UserCapitan.CapitanActivity;
+import com.example.smartport.UserControlador.ControladorActivity;
 import com.example.smartport.UserEncargadoSeguridad.EncargadoSeguridadActivity;
 import com.example.smartport.UserTransportista.TransportistaActivity;
 import com.example.smartport.utils.AuthManager;

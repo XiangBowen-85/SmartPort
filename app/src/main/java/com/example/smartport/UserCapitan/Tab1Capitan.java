@@ -1,4 +1,4 @@
-package com.example.smartport;
+package com.example.smartport.UserCapitan;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,11 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.ListenerRegistration;
-
-import java.util.HashMap;
 import java.util.UUID;
 
 import com.example.smartport.R;
