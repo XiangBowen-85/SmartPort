@@ -1,6 +1,7 @@
 package com.example.smartport.UserEncargadoSeguridad;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,6 +18,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.smartport.R;
+import com.example.smartport.WeightRequestService;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -87,6 +89,8 @@ public class Tab1EncargadoSeguridad extends Fragment {
 
         connectMqtt();
         listenLatestCargo();
+        ensureNotificationPermission();
+        startOrUpdateForeground("Listo para solicitar peso real.");
 
         btnGetRealWeight.setOnClickListener(v -> {
             if (isRequestInProgress) return;
@@ -102,25 +106,61 @@ public class Tab1EncargadoSeguridad extends Fragment {
         return view;
     }
 
+    private void ensureNotificationPermission() {
+        if (android.os.Build.VERSION.SDK_INT >= 33) {
+            if (requireContext().checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
+                    != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 101);
+            }
+        }
+    }
+
+
     // ======================= MQTT（与 Capitan 同风格） =======================
 
     private void connectMqtt() {
         mqttClient = new MqttAndroidClient(requireContext(), BROKER, CLIENT_ID);
 
+        // ✅关键：统一在 Callback 里接收消息 + 处理自动重连后的重新订阅
+        mqttClient.setCallback(new org.eclipse.paho.client.mqttv3.MqttCallbackExtended() {
+            @Override
+            public void connectComplete(boolean reconnect, String serverURI) {
+                // 每次连接成功（包括重连）都会进来
+                requireActivity().runOnUiThread(() -> {
+                    Toast.makeText(getContext(),
+                            reconnect ? "MQTT 重连成功" : "MQTT 已连接",
+                            Toast.LENGTH_SHORT).show();
+                });
+                subscribeWeightResponse(); // ✅重连后也会重新订阅
+            }
+
+            @Override
+            public void connectionLost(Throwable cause) {
+                // 可选：你可以打印日志
+            }
+
+            @Override
+            public void messageArrived(String topic, MqttMessage message) {
+                String payload = new String(message.getPayload()); // 可改 UTF-8
+                if (TOPIC_WEIGHT_RESPONSE.equals(topic)) {
+                    onWeightResponse(payload);
+                }
+            }
+
+            @Override
+            public void deliveryComplete(org.eclipse.paho.client.mqttv3.IMqttDeliveryToken token) { }
+        });
+
         MqttConnectOptions options = new MqttConnectOptions();
         options.setAutomaticReconnect(true);
-        options.setCleanSession(true);
+        options.setCleanSession(true); // 你保持 true 也行，但必须重连后重新订阅（我们已经做了）
 
         try {
             mqttClient.connect(options, null, new IMqttActionListener() {
-                @Override
-                public void onSuccess(IMqttToken asyncActionToken) {
-                    Toast.makeText(getContext(), "MQTT 已连接", Toast.LENGTH_SHORT).show();
-                    subscribeWeightResponse();
+                @Override public void onSuccess(IMqttToken asyncActionToken) {
+                    // connectComplete() 也会触发，这里不用再 subscribe
                 }
-
-                @Override
-                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                @Override public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
                     Toast.makeText(getContext(), "MQTT 连接失败", Toast.LENGTH_LONG).show();
                 }
             });
@@ -130,20 +170,16 @@ public class Tab1EncargadoSeguridad extends Fragment {
         }
     }
 
+
     private void subscribeWeightResponse() {
         if (mqttClient == null || !mqttClient.isConnected()) return;
 
         try {
-            mqttClient.subscribe(TOPIC_WEIGHT_RESPONSE, 1, new IMqttMessageListener() {
-                @Override
-                public void messageArrived(String topic, MqttMessage message) {
-                    String payload = new String(message.getPayload());
-                    onWeightResponse(payload);
-                }
-            });
+            mqttClient.subscribe(TOPIC_WEIGHT_RESPONSE, 1);
+            Toast.makeText(getContext(), "Suscrito: " + TOPIC_WEIGHT_RESPONSE, Toast.LENGTH_SHORT).show();
         } catch (MqttException e) {
             e.printStackTrace();
-            Toast.makeText(getContext(), "订阅重量返回失败", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "订阅失败: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -154,15 +190,18 @@ public class Tab1EncargadoSeguridad extends Fragment {
             return;
         }
 
-        // UI：防重复点击
         isRequestInProgress = true;
         btnGetRealWeight.setEnabled(false);
         btnGetRealWeight.setText("SOLICITANDO...");
-        tvStatus.setText("Estado: solicitando peso real...");
 
         pendingCargoId = currentCargoId;
 
-        // 推荐请求 payload 为 JSON（含 cargoId）
+        String statusText = "Solicitando peso real (" + pendingCargoId + ")...";
+        tvStatus.setText("Estado: " + statusText);
+
+        // ✅ 前台服务通知（加分点）
+        startOrUpdateForeground(statusText);
+
         String payload = "{\"cargoId\":\"" + pendingCargoId + "\"}";
         MqttMessage msg = new MqttMessage(payload.getBytes());
         msg.setQos(1);
@@ -170,19 +209,45 @@ public class Tab1EncargadoSeguridad extends Fragment {
         try {
             mqttClient.publish(TOPIC_WEIGHT_REQUEST, msg);
 
-            // 超时恢复（避免无回包卡死）
             handler.postDelayed(() -> {
                 if (isRequestInProgress) {
-                    tvStatus.setText("Estado: sin respuesta del sensor (timeout).");
+                    String t = "Sin respuesta del sensor (timeout).";
+                    tvStatus.setText("Estado: " + t);
+                    startOrUpdateForeground(t);   // ✅只更新通知，不停止
+
                     resetRequestButton();
+                    isRequestInProgress = false;
                 }
             }, 6000);
 
+
         } catch (MqttException e) {
             e.printStackTrace();
-            tvStatus.setText("Estado: envío fallido.");
+
+            String t = "Envío fallido.";
+            tvStatus.setText("Estado: " + t);
+            startOrUpdateForeground(t);   // ✅只更新通知，不停止
+
             resetRequestButton();
+            isRequestInProgress = false;
         }
+
+    }
+
+    private void startOrUpdateForeground(String text) {
+        Intent svc = new Intent(requireContext(), WeightRequestService.class);
+        svc.putExtra(WeightRequestService.EXTRA_TITLE, "SmartPort - Peso");
+        svc.putExtra(WeightRequestService.EXTRA_TEXT, text);
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            requireContext().startForegroundService(svc);
+        } else {
+            requireContext().startService(svc);
+        }
+    }
+
+    private void stopForegroundService() {
+        requireContext().stopService(new Intent(requireContext(), WeightRequestService.class));
     }
 
     private void resetRequestButton() {
@@ -229,6 +294,7 @@ public class Tab1EncargadoSeguridad extends Fragment {
     // ======================= 收到真实重量：弹窗+红绿+添加/不添加 =======================
 
     private void onWeightResponse(String payload) {
+        android.util.Log.d("SECURITY", "RESP payload=" + payload);
         ParsedWeight parsed = parseWeightPayload(payload);
 
         // 防串单：如果回包含 cargoId，则必须匹配 pendingCargoId
@@ -242,13 +308,21 @@ public class Tab1EncargadoSeguridad extends Fragment {
         boolean bigDiff = diff > DIFF_THRESHOLD_KG;
 
         requireActivity().runOnUiThread(() -> {
-            tvStatus.setText("Estado: peso real recibido.");
+            isRequestInProgress = false;
             resetRequestButton();
+
+            String t = "Peso real: " + String.format("%.1f", parsed.realKg)
+                    + " kg | Dif: " + String.format("%.1f", diff) + " kg"
+                    + (bigDiff ? " (ALERTA)" : " (OK)");
+
+            tvStatus.setText("Estado: peso real recibido.");
+            startOrUpdateForeground(t);
 
             showDecisionDialog(pendingCargoId, currentEditedKg, parsed.realKg, diff, bigDiff);
             pendingCargoId = null;
         });
     }
+
 
     private void showDecisionDialog(String cargoId, double editedKg, double realKg, double diffKg, boolean bigDiff) {
         View dialogView = LayoutInflater.from(requireContext())
@@ -328,12 +402,11 @@ public class Tab1EncargadoSeguridad extends Fragment {
             return pw;
         } catch (Exception ignored) {}
 
-        // 2) JSON（推荐你的传感器发这种）
+        // 2) JSON：{"cargoId":"cargo_001","pesoReal":1234.5}
         try {
             JSONObject o = new JSONObject(s);
             pw.cargoId = o.optString("cargoId", null);
 
-            // 你回包字段可以叫 pesoReal / realWeight / peso
             if (o.has("pesoReal")) pw.realKg = o.optDouble("pesoReal", -1);
             else if (o.has("realWeight")) pw.realKg = o.optDouble("realWeight", -1);
             else if (o.has("peso")) pw.realKg = o.optDouble("peso", -1);
@@ -345,6 +418,7 @@ public class Tab1EncargadoSeguridad extends Fragment {
             return pw;
         }
     }
+
 
     private static class ParsedWeight {
         String cargoId = null;

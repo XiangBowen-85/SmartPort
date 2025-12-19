@@ -3,6 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.smartport">
 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -44,6 +48,12 @@
         android:theme="@style/Theme.SmartPort">
 
         <service android:name="org.eclipse.paho.android.service.MqttService" />
+
+        <service
+            android:name=".WeightRequestService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
 
         <!-- Facebook SDK 必须的三个 meta-data（完美避开冲突） -->
         <meta-data
