@@ -1,7 +1,9 @@
 package com.example.smartport.UserCapitan;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -19,11 +21,19 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import java.util.UUID;
 
 import com.example.smartport.R;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -32,7 +42,7 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-public class Tab1Capitan extends Fragment {
+public class Tab1Capitan extends Fragment implements OnMapReadyCallback, GoogleMap.OnMapClickListener {
 
     private Button btnOpenGate;
     private TextView tvStatus;
@@ -61,6 +71,9 @@ public class Tab1Capitan extends Fragment {
     private long shakeWindowStartUptimeMs = 0L;
     private int shakeCountInWindow = 0;
     private AlertDialog dangerDialog;
+    private GoogleMap mapa;
+    private final LatLng UPV = new LatLng(39.481106, -0.340987); // 你旧代码里的点 :contentReference[oaicite:8]{index=8}
+    private static final int REQ_LOC = 2001;
 
 
     @Nullable
@@ -131,8 +144,77 @@ public class Tab1Capitan extends Fragment {
             public void onAccuracyChanged(Sensor sensor, int accuracy) { }
         };
 
+        SupportMapFragment mapFragment = (SupportMapFragment)
+                getChildFragmentManager().findFragmentById(R.id.mapa);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(this);
+        }
+
         return view;
     }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mapa = googleMap;
+
+        mapa.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+        mapa.getUiSettings().setZoomControlsEnabled(false);
+        mapa.moveCamera(CameraUpdateFactory.newLatLngZoom(UPV, 15));
+
+        mapa.addMarker(new MarkerOptions()
+                .position(UPV)
+                .title("UPV")
+                .snippet("Universidad Politécnica de Valencia")
+                .icon(BitmapDescriptorFactory.fromResource(android.R.drawable.ic_menu_compass))
+                .anchor(0.5f, 0.5f));
+
+        mapa.setOnMapClickListener(this);
+
+        // 地理定位（蓝点）：需要运行时权限
+        enableMyLocationIfPermitted();
+    }
+
+    private void enableMyLocationIfPermitted() {
+        if (mapa == null) return;
+
+        boolean fine = ActivityCompat.checkSelfPermission(requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        boolean coarse = ActivityCompat.checkSelfPermission(requireContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+
+        if (!fine && !coarse) {
+            requestPermissions(new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+            }, REQ_LOC);
+            return;
+        }
+
+        mapa.setMyLocationEnabled(true);
+        mapa.getUiSettings().setCompassEnabled(true);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQ_LOC) {
+            for (int r : grantResults) {
+                if (r == PackageManager.PERMISSION_GRANTED) {
+                    enableMyLocationIfPermitted();
+                    return;
+                }
+            }
+            Toast.makeText(getContext(), "Permiso de ubicación denegado", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onMapClick(LatLng puntoPulsado) {
+        if (mapa == null) return;
+        mapa.addMarker(new MarkerOptions().position(puntoPulsado)
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
+    }
+
 
     @Override
     public void onResume() {

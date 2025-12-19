@@ -85,6 +85,9 @@ dependencies {
     implementation("org.eclipse.paho:org.eclipse.paho.android.service:1.1.1")
     implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.1")
 
+    //googlemap
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
+
     // AndroidX 核心库
     implementation(libs.appcompat)
     implementation(libs.material)
