@@ -41,7 +41,7 @@
         android:id="@+id/btnOpenGate"
         android:layout_width="220dp"
         android:layout_height="220dp"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="16dp"
         android:background="@drawable/button_open_gate_selector"
         android:elevation="12dp"
         android:insetLeft="0dp"
@@ -50,6 +50,7 @@
         android:insetRight="0dp"
         android:insetBottom="0dp"
 
+        android:stateListAnimator="@animator/button_elevation_anim"
         android:text="ABRIR\nCOMPUERTA"
         android:textColor="#FFFFFF"
         android:textSize="28sp"
@@ -61,7 +62,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/subtitle"
         app:rippleColor="#80FFFFFF"
-        android:stateListAnimator="@animator/button_elevation_anim"
         app:strokeWidth="0dp" />
     <!--app:stateListAnimator="@animator/button_elevation_anim"-->
 
@@ -70,7 +70,7 @@
         android:id="@+id/tvStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:text=""
         android:textColor="#43A047"
         android:textSize="16sp"
