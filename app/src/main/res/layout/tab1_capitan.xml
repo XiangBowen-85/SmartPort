@@ -15,7 +15,7 @@
         android:background="@drawable/welcome_banner_background3"
         android:gravity="center"
         android:padding="24dp"
-        android:text="Hola, Controlador!"
+        android:text="Hola, capitan!"
         android:textColor="#FFFFFF"
         android:textSize="26sp"
         android:textStyle="bold"

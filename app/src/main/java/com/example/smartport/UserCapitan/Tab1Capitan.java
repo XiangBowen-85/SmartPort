@@ -1,8 +1,15 @@
 package com.example.smartport.UserCapitan;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,11 +42,32 @@ public class Tab1Capitan extends Fragment {
     private final String BROKER = "tcp://broker.emqx.io:1883";
     private final Handler handler = new Handler(Looper.getMainLooper());
     private boolean isRequestInProgress = false;
+    // =========================
+    //  SENSORES: Shake -> AlertDialog (独立功能)
+    // =========================
+    private SensorManager sensorManager;
+    private Sensor accelerometer;
+    private SensorEventListener accelListener;
+
+    // 建议参数：一般 2.0 ~ 2.7 之间比较好触发
+    private static final float SHAKE_G_FORCE_THRESHOLD = 2.3f;
+    private static final long SHAKE_DEBOUNCE_MS = 1500L;
+
+    // “连续多次超过阈值”更稳：在窗口内达到次数才算shake
+    private static final long SHAKE_WINDOW_MS = 600L;
+    private static final int SHAKE_MIN_COUNT = 2;
+
+    private long lastShakeUptimeMs = 0L;
+    private long shakeWindowStartUptimeMs = 0L;
+    private int shakeCountInWindow = 0;
+    private AlertDialog dangerDialog;
+
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.tab1_capitan, container, false);
 
         btnOpenGate = view.findViewById(R.id.btnOpenGate);
@@ -47,13 +75,109 @@ public class Tab1Capitan extends Fragment {
 
         connectMqtt();
 
+        // 开门按钮逻辑保持不变（与摇一摇无关）
         btnOpenGate.setOnClickListener(v -> {
             if (isRequestInProgress) return;
             sendOpenCommand();
         });
 
+        // 初始化加速度计
+        sensorManager = (SensorManager) requireContext().getSystemService(Context.SENSOR_SERVICE);
+        if (sensorManager != null) {
+            accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        }
+
+        accelListener = new SensorEventListener() {
+            @Override
+            public void onSensorChanged(SensorEvent event) {
+                if (event == null || event.values == null || event.values.length < 3) return;
+
+                float x = event.values[0];
+                float y = event.values[1];
+                float z = event.values[2];
+
+                float gX = x / SensorManager.GRAVITY_EARTH;
+                float gY = y / SensorManager.GRAVITY_EARTH;
+                float gZ = z / SensorManager.GRAVITY_EARTH;
+
+                float gForce = (float) Math.sqrt(gX * gX + gY * gY + gZ * gZ);
+
+                if (gForce > SHAKE_G_FORCE_THRESHOLD) {
+                    long now = SystemClock.uptimeMillis();
+
+                    // 全局防抖：短时间内不重复触发弹窗
+                    if (now - lastShakeUptimeMs < SHAKE_DEBOUNCE_MS) return;
+
+                    // 时间窗口统计：窗口内达到一定次数才算 shake
+                    if (shakeWindowStartUptimeMs == 0L || now - shakeWindowStartUptimeMs > SHAKE_WINDOW_MS) {
+                        shakeWindowStartUptimeMs = now;
+                        shakeCountInWindow = 1;
+                    } else {
+                        shakeCountInWindow++;
+                    }
+
+                    if (shakeCountInWindow >= SHAKE_MIN_COUNT) {
+                        lastShakeUptimeMs = now;
+                        shakeWindowStartUptimeMs = 0L;
+                        shakeCountInWindow = 0;
+
+                        // ✅ 摇一摇只做“危险警告”，不碰开门逻辑
+                        showDangerWarningDialog();
+                    }
+                }
+            }
+
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int accuracy) { }
+        };
+
         return view;
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // 重要：确认传感器存在 & 注册监听
+        if (sensorManager == null) {
+            Toast.makeText(getContext(), "SensorManager不可用", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (accelerometer == null) {
+            Toast.makeText(getContext(), "该设备没有加速度传感器", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        sensorManager.registerListener(accelListener, accelerometer, SensorManager.SENSOR_DELAY_GAME);
+
+        // 用于确认：页面可见时确实完成了注册（你现在没反应时，用它判断关键）
+        Toast.makeText(getContext(), "Sensores activos (acelerómetro)", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (sensorManager != null && accelListener != null) {
+            sensorManager.unregisterListener(accelListener);
+        }
+    }
+
+    private void showDangerWarningDialog() {
+        if (!isAdded() || getContext() == null) return;
+
+        // 防止连弹多个
+        if (dangerDialog != null && dangerDialog.isShowing()) return;
+
+        dangerDialog = new AlertDialog.Builder(requireContext())
+                .setTitle("⚠️ Advertencia")
+                .setMessage("El entorno actual es peligroso.")
+                .setCancelable(true)
+                .setPositiveButton("ENTENDIDO", (dialog, which) -> dialog.dismiss())
+                .create();
+
+        dangerDialog.show();
+    }
+
 
     private void connectMqtt() {
         mqttClient = new MqttAndroidClient(getContext(), BROKER, CLIENT_ID);
